@@ -11,5 +11,5 @@ FIND_PACKAGE(PkgConfig REQUIRED)
 PKG_CHECK_MODULES(GTK3 REQUIRED gtk+-3.0)
 
 add_executable(AR1100
-  main.cpp
+  main.cpp AR1100.h AR1100.cpp
 )
