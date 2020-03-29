@@ -3,7 +3,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
-//#include <gtk/gtk.h>
+#include <gtk/gtk.h>
 #include "AR1100.h"
 
 /**************************************************************************************
