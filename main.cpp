@@ -80,6 +80,17 @@ static gboolean clicked(GtkWidget *widget, GdkEventButton *event, gpointer user_
     return TRUE;
 }
 
+static gboolean on_draw(GtkWidget *widget, cairo_t *cr, gpointer *user_data) {
+    printf("New on_draw function \n"); fflush(stdout);
+//    cairo_rectangle(cr, 0, 0, 1024, 768);//event->area.x, event->area.y, event->area.width, event->area.height);
+    cairo_set_source_rgb(cr, 255, 255, 255);
+    cairo_fill(cr);
+    cairo_clip(cr);
+    do_drawing(cr);
+//    cairo_destroy(cr);
+    return FALSE;
+}
+
 //this function is called when we need to redraw the +
 static gboolean on_expose_event(GtkWidget *widget, GdkEventExpose *event, gpointer data){
 //    cairo_t *cr = gdk_cairo_create(widget->window);	    cairo_t *cr = gdk_cairo_create(widget->window);
@@ -158,7 +169,8 @@ void setup_calibration_gui (int points){
     
     //connect events and signals
     gtk_widget_add_events(window, GDK_BUTTON_PRESS_MASK);
-    g_signal_connect(G_OBJECT(darea), "expose_event", G_CALLBACK(on_expose_event), NULL); //tells us to update the drawing
+    g_signal_connect(darea, "draw", G_CALLBACK(on_draw), NULL);
+//    g_signal_connect(G_OBJECT(darea), "expose_event", G_CALLBACK(on_expose_event), NULL); //tells us to update the drawing
     g_signal_connect(window, "destroy", G_CALLBACK(destroy), NULL);   //window closed
     g_signal_connect(window, "key-press-event", G_CALLBACK(key_pressed), NULL); //a key was pressed (close window)	
 //    gtk_signal_connect(GTK_OBJECT(window), "key-press-event", G_CALLBACK(key_pressed), NULL); //a key was pressed (close window)   gtk_signal_connect(GTK_OBJECT(window), "key-press-event", G_CALLBACK(key_pressed), NULL); //a key was pressed (close window)
