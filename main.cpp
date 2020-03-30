@@ -82,7 +82,9 @@ static gboolean clicked(GtkWidget *widget, GdkEventButton *event, gpointer user_
 
 //this function is called when we need to redraw the +
 static gboolean on_expose_event(GtkWidget *widget, GdkEventExpose *event, gpointer data){
-    cairo_t *cr = gdk_cairo_create(widget->window);
+//    cairo_t *cr = gdk_cairo_create(widget->window);	    cairo_t *cr = gdk_cairo_create(widget->window);
+    GdkWindow *window = gtk_widget_get_parent_window(widget);	
+    cairo_t *cr = gdk_cairo_create(window);
     cairo_rectangle(cr, event->area.x, event->area.y, event->area.width, event->area.height);
     cairo_set_source_rgb(cr, 255, 255, 255);
     cairo_fill(cr);
@@ -115,7 +117,9 @@ static void do_drawing(cairo_t *cr){
 //timer function runs every 10ms to redraw the screen and move to next calibration point if needed
 gboolean update_screen(gpointer data){
     GtkWidget *widget = GTK_WIDGET(data);
-    if (!widget->window){
+    GdkWindow *window = gtk_widget_get_parent_window(widget);
+    if (window){	
+//    if (!widget->window){
         printf("Error no window.");
         return false;
     }
@@ -160,7 +164,8 @@ void setup_calibration_gui (int points){
     gtk_widget_add_events(window, GDK_BUTTON_PRESS_MASK);
     g_signal_connect(G_OBJECT(darea), "expose_event", G_CALLBACK(on_expose_event), NULL); //tells us to update the drawing
     g_signal_connect(window, "destroy", G_CALLBACK(destroy), NULL);   //window closed
-    gtk_signal_connect(GTK_OBJECT(window), "key-press-event", G_CALLBACK(key_pressed), NULL); //a key was pressed (close window)
+    g_signal_connect(window, "key-press-event", G_CALLBACK(key_pressed), NULL); //a key was pressed (close window)	
+//    gtk_signal_connect(GTK_OBJECT(window), "key-press-event", G_CALLBACK(key_pressed), NULL); //a key was pressed (close window)   gtk_signal_connect(GTK_OBJECT(window), "key-press-event", G_CALLBACK(key_pressed), NULL); //a key was pressed (close window)
     g_signal_connect(window, "button-press-event", G_CALLBACK(clicked), NULL); //button was pressed
 
     //setup the points
