@@ -18,3 +18,5 @@ add_executable(AR1100
 target_link_libraries(AR1100 ${GTK_LIBRARIES} usb-1.0)
 target_include_directories(AR1100 PUBLIC ${GTK_INCLUDE_DIRS})
 target_compile_options(AR1100 PUBLIC ${GTK_CFLAGS_OTHER})
+
+install(TARGETS AR1100 DESTINATION bin)
