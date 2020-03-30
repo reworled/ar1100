@@ -42,7 +42,7 @@ typedef struct {
 }calibration_point;
 
 #define MAX_CALIBRATION_POINTS 25
-#define CALIBRATION_POINT_SIZE 10 //size of the + on the screen
+#define CALIBRATION_POINT_SIZE 20 //size of the + on the screen
 #define INSET 64                  //selects the margin from left/top/bottom/right where to start drawing the points default is 64/256/2 = 12.5% margin
 #define CONNECT_MAX_RETRY 10
 
@@ -101,9 +101,7 @@ static void do_drawing(cairo_t *cr){
 
     calibration_point point = calibration_points[current_calibration_point];
     
-    #ifdef DEBUG
-        printf("Drawing point %d: (%d,%d)\n",current_calibration_point+1, point.x, point.y);
-    #endif
+    printf("Drawing point %d: (%d,%d)\n",current_calibration_point+1, point.x, point.y);
     
     cairo_move_to(cr, point.x - CALIBRATION_POINT_SIZE, point.y);
     cairo_line_to(cr, point.x + CALIBRATION_POINT_SIZE, point.y);
@@ -124,9 +122,7 @@ gboolean update_screen(gpointer data){
         return false;
     }
     if (AR1100.calibrate_next_point()){
-        #ifdef DEBUG
-            printf("Go to next point.\n");
-        #endif
+        printf("Go to next point.\n");
         gtk_widget_queue_draw(widget);
         current_calibration_point++;
         if (current_calibration_point==calibration_point_count){
