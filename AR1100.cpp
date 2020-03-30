@@ -70,7 +70,6 @@ int AR1100::connect(int vid, int pid){
 	/*if (device_ready){
 		// Send and receive data.
 		exchange_input_and_output_reports_via_interrupt_transfers(devh);
-
 		libusb_release_interface(devh, 0);
 	}
 	libusb_close(devh);

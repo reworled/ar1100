@@ -82,9 +82,7 @@ static gboolean clicked(GtkWidget *widget, GdkEventButton *event, gpointer user_
 
 //this function is called when we need to redraw the +
 static gboolean on_expose_event(GtkWidget *widget, GdkEventExpose *event, gpointer data){
-//    cairo_t *cr = gdk_cairo_create(widget->window);
-    GdkWindow *window = gtk_widget_get_parent_window(widget);
-    cairo_t *cr = gdk_cairo_create(window);
+    cairo_t *cr = gdk_cairo_create(widget->window);
     cairo_rectangle(cr, event->area.x, event->area.y, event->area.width, event->area.height);
     cairo_set_source_rgb(cr, 255, 255, 255);
     cairo_fill(cr);
@@ -117,9 +115,7 @@ static void do_drawing(cairo_t *cr){
 //timer function runs every 10ms to redraw the screen and move to next calibration point if needed
 gboolean update_screen(gpointer data){
     GtkWidget *widget = GTK_WIDGET(data);
-    GdkWindow *window = gtk_widget_get_parent_window(widget);
-    if (window){
-//    if (!widget->window){
+    if (!widget->window){
         printf("Error no window.");
         return false;
     }
@@ -140,7 +136,6 @@ gboolean update_screen(gpointer data){
 
 //starts the GUI with gtk2.0, calculates the calibration points
 void setup_calibration_gui (int points){
-    printf("Opened the calibration page");
     GtkWidget *window;
     GtkWidget *darea;
     current_calibration_point=0; //start with point 0
@@ -165,8 +160,7 @@ void setup_calibration_gui (int points){
     gtk_widget_add_events(window, GDK_BUTTON_PRESS_MASK);
     g_signal_connect(G_OBJECT(darea), "expose_event", G_CALLBACK(on_expose_event), NULL); //tells us to update the drawing
     g_signal_connect(window, "destroy", G_CALLBACK(destroy), NULL);   //window closed
-    g_signal_connect(window, "key-press-event", G_CALLBACK(key_pressed), NULL); //a key was pressed (close window)
-//    gtk_signal_connect(GTK_OBJECT(window), "key-press-event", G_CALLBACK(key_pressed), NULL); //a key was pressed (close window)
+    gtk_signal_connect(GTK_OBJECT(window), "key-press-event", G_CALLBACK(key_pressed), NULL); //a key was pressed (close window)
     g_signal_connect(window, "button-press-event", G_CALLBACK(clicked), NULL); //button was pressed
 
     //setup the points
@@ -197,7 +191,7 @@ int main(int argc, char *argv[]){
     int i=0;
     int cal_type=0;
     int cal_points=9;
-
+    
     if (argc==1 || (argc==2 && strcmp(argv[0], "-?")==0)){
         printf("Command line options:\n");
         printf("    -?       show this message.\n");
@@ -208,7 +202,7 @@ int main(int argc, char *argv[]){
         printf("             valid values for p: 4, 9 and 25 default is 9.\n");
         return 0;
     }
-
+    
     if (AR1100.connect(AR1100_VENDOR_ID,AR1100_PID_GENERIC)==0){
         printf("Connected to AR1100 as generic HID.\n");
         AR1100_configured_mode = AR1100_MODE_GENERIC;
@@ -220,29 +214,28 @@ int main(int argc, char *argv[]){
         AR1100_configured_mode = AR1100_MODE_DIGITIZER;
     }else{
         printf("Could not connect to the AR1100!\n");
-//        return 1;
+        return 1;
     }
-
-//    if (AR1100_configured_mode!=AR1100_MODE_GENERIC){
-//        printf("The AR1100 is not in generic HID mode, switching mode.\n");
-//        if (!AR1100.switch_hid_generic()){
-//            printf("Failed to switch to generic HID device.\n");
-//            return 1;
-//        }
-//        sleep(1);
-
-//        i=0;
-//        while (AR1100.connect(AR1100_VENDOR_ID,AR1100_PID_GENERIC)!=0 && i < CONNECT_MAX_RETRY){
-//            printf(".");
-//            fflush(stdout);
-//            sleep(1);
-//        }
-//        if (i==CONNECT_MAX_RETRY){
-//            printf("Error connecting to AR1100 after mode switch!");
-//            return 1;
-//        }
-//    }
-
+    
+    if (AR1100_configured_mode!=AR1100_MODE_GENERIC){
+        printf("The AR1100 is not in generic HID mode, switching mode.\n");
+        if (!AR1100.switch_hid_generic()){
+            printf("Failed to switch to generic HID device.\n");
+            return 1;
+        }
+        sleep(1);
+        
+        i=0;
+        while (AR1100.connect(AR1100_VENDOR_ID,AR1100_PID_GENERIC)!=0 && i < CONNECT_MAX_RETRY){
+            printf(".");
+            sleep(1);
+        }
+        if (i==CONNECT_MAX_RETRY){
+            printf("Error connecting to AR1100 after mode switch!");
+            return 1;
+        }
+    }
+    
     i=1;
     while (i<argc){
         if (strcmp(argv[i], "-c")==0){ //enable calibration
@@ -275,20 +268,20 @@ int main(int argc, char *argv[]){
         }
         i++;
     }
-
+    
     if (!AR1100.touch_disable()){
         printf("Error disabeling touch!\n");
     }
-
+    
     AR1100.clear_in_buffer();
-
+    
     if (cal_type!=0){
         printf("Calibrating %d points.\n", cal_points);
-//        if (AR1100.calibrate(cal_type)){
+        if (AR1100.calibrate(cal_type)){
             setup_calibration_gui(cal_points);
-//        }
+        }
     }
-
+    
     switch (AR1100_configured_mode){
         case AR1100_MODE_MOUSE:
             printf("Setting AR1100 to mouse mode.\n");
