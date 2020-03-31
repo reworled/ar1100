@@ -81,12 +81,15 @@ static gboolean clicked(GtkWidget *widget, GdkEventButton *event, gpointer user_
 }
 
 static gboolean on_draw(GtkWidget *widget, cairo_t *cr, gpointer *user_data) {
+    gint width=gdk_screen_width();
+    gint height=gdk_screen_height();
     printf("New on_draw function \n"); fflush(stdout);
-//    cairo_rectangle(cr, 0, 0, 1024, 768);//event->area.x, event->area.y, event->area.width, event->area.height);
+    cairo_rectangle(cr, 0, 0, width, height);
     cairo_set_source_rgb(cr, 255, 255, 255);
     cairo_fill(cr);
-    cairo_clip(cr);
+//    cairo_clip(cr);
     do_drawing(cr);
+    gtk_widget_queue_draw_area (widget, 0, 0, width, height);
 //    cairo_destroy(cr);
     return FALSE;
 }
